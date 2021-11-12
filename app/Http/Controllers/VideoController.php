@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Video;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\File; 
 
 class VideoController extends Controller
@@ -31,38 +32,51 @@ class VideoController extends Controller
             'description'=>'required',
             'isFile'=>'required',
         ]);
-        return "video saved";
-        if($request->hasFile('video'))
+        if($request->has('video'))
         {
             $allowedfileExtension=['mkv','mp4','mp3'];
             $file = $request->file('video');
-            $filename = $file->getClientOriginalName().Carbon\Carbon::now();
+            $filename = $file->getClientOriginalName();
             $extension = $file->getClientOriginalExtension();
             $check=in_array($extension,$allowedfileExtension);
             //dd($check);
             if($check)
             {
-                $filename = $request->video->store('videos', 'public');
+                $filename = $request->video->store('films', 'public');
                 Video::create([
                     'title' => $request->title,
                     'description' => $request->description,
                     'isFile' => $request->isFile,
                     'label' => $filename
                 ]);
+                $response = [
+                    "FileName" => $filename,
+                    "Message" => "Film Saved Successfully."
+                ];
+                return response($response, 201);
+            }else
+                {
+                    $response = [
+                        "FileName" => $filename,
+                        "Error" => "Invalid Film Format"
+                    ];
+                    return response($response, 201);
+                }
+        }else
+            {
+                Video::create([
+                    'title' => $request->title,
+                    'description' => $request->description,
+                    'isFile' => $request->isFile,
+                    'youtubeUrl' => $request->youtubeUrl,
+                ]);
+                // Video::create($request->all());
+                
+                $response = [
+                    "Message" => "Film Saved Successfully."
+                ];
+                return response($response, 201);
             }
-            return "video saved";
-        }
-        else
-        {
-            Video::create([
-                'title' => $request->title,
-                'description' => $request->description,
-                'isFile' => $request->isFile,
-                'youtubeUrl' => $request->youtubeUrl,
-            ]);
-            // Video::create($request->all());
-            return "video saved";
-        }
     }
 
     /**
@@ -74,8 +88,11 @@ class VideoController extends Controller
     public function show($id)
     {
         $video = Video::findOrFail($id);
-        return $video;
-    }
+
+        $response = [
+            "data" => $video,
+        ];
+        return response($response, 201);    }
 
     /**
      * Download the specified resource.
@@ -86,7 +103,7 @@ class VideoController extends Controller
     public function download($id)
     {
         $video = Video::findOrFail($id);
-        return response()->download(public_path("videos/".$video->label));
+        return response()->download(public_path("storage/".$video->label));
         // return Storage::download(public_path("videos/"), $video->label);
     }
     /**
@@ -104,7 +121,6 @@ class VideoController extends Controller
             'description'=>'required',
             'isFile'=>'required',
         ]);
-        return "video saved";
         if($request->hasFile('video'))
         {
             $allowedfileExtension=['mkv','mp4','mp3'];
@@ -115,27 +131,41 @@ class VideoController extends Controller
             //dd($check);
             if($check)
             {
-                $filename = $request->video->store('videos', 'public');
+                $filename = $request->video->store('films', 'public');
                 $video->update([
                     'title' => $request->title,
                     'description' => $request->description,
                     'isFile' => $request->isFile,
                     'label' => $filename
                 ]);
+                $response = [
+                    "FileName" => $filename,
+                    "Message" => "Film Edited Successfully."
+                ];
+                return response($response, 201);
+            }else
+                {
+                    $response = [
+                        "FileName" => $filename,
+                        "Error" => "Invalid Film Format"
+                    ];
+                    return response($response, 201);
+                }
+        }else
+            {
+                $video->update([
+                    'title' => $request->title,
+                    'description' => $request->description,
+                    'isFile' => $request->isFile,
+                    'youtubeUrl' => $request->youtubeUrl,
+                ]);
+                // $video->update($request->all());
+                
+                $response = [
+                    "Message" => "Film Edited Successfully."
+                ];
+                return response($response, 201);
             }
-            return "video saved";
-        }
-        else
-        {
-            $video->update([
-                'title' => $request->title,
-                'description' => $request->description,
-                'isFile' => $request->isFile,
-                'youtubeUrl' => $request->youtubeUrl,
-            ]);
-            // $video->update($request->all());
-            return "video saved";
-        }
     }
 
     /**
@@ -148,16 +178,28 @@ class VideoController extends Controller
     {
         
         $video = Video::findOrFail($id);
-        $video_path = public_path("videos/".$video->label);
-        $deleted = false;
+        $video_path = public_path("storage/".$video->label);
         if (File::exists($video_path)) {
             //File::delete($video_path);
             if(unlink($video_path)){
-                $deleted = true;
+                $video->delete();
+                $response = [
+                    "path" => $video_path,
+                    "Message" => "Film Deleted Successfully."
+                ];
+                return response($response, 201);
+            }else {
+                $response = [
+                    "path" => $video_path,
+                    "Error" => "Error Occured Couldn't Delete Film."
+                ];
+                return response($response, 201);
             }
-            // unlink($video_path);
         }
-        $video->delete();
-        return "video deleted = ".$deleted;
+        $response = [
+            "path" => $video_path,
+            "Error" => "Couldn't Find Film To Delete."
+        ];
+        return response($response, 201);
     }
 }

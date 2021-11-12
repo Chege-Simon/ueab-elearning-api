@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\Photo;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\File; 
+use Carbon\Carbon;
 
 class PhotoController extends Controller
 {
@@ -15,7 +17,10 @@ class PhotoController extends Controller
      */
     public function index()
     {
-        return Photo::all();
+        $response = [
+            "images" => Photo::all(),
+        ];
+        return response($response, 201);
     }
 
     /**
@@ -29,28 +34,55 @@ class PhotoController extends Controller
         $this->validate($request, [
             'photos'=>'required',
         ]);
-        if($request->hasFile('photos'))
+        $response;
+        if($request->has('photos'))
         {
-            $allowedfileExtension=['pdf','jpg','png','docx'];
+            $allowedfileExtension=['jpeg','jpg','png','gif','svg'];
             $files = $request->file('photos');
+            // dd($files);
+            // $response = [
+            //     "file" => $files,
+            // ];
+            // return response($response, 203);
             foreach($files as $file)
             {
-                $filename = $file->getClientOriginalName().Carbon\Carbon::now();
+                $filename = $file->getClientOriginalName();
                 $extension = $file->getClientOriginalExtension();
                 $check=in_array($extension,$allowedfileExtension);
                 //dd($check);
+                //  $response = [
+                //     "photos" =>$files,
+                //     "filename" => $filename,
+                //     "extension" => $extension,
+                //     "Error" => "Invalid Images"
+                // ];
+                // return response($response, 201);
                 if($check)
                 {
-                    foreach ($request->photos as $photo) {
-                        $filename = $photo->store('photos', 'public');
-                        Photo::create([
-                        'label' => $filename
-                    ]);
-                    }
+                    $filename = $file->store('images', 'public');
+                    Photo::create([
+                    'label' => $filename
+                    ]);  
+                    $response = [
+                        "Extension" => $extension,
+                        "FileName" => $filename,
+                        'Message' => "Image saved Successfully."
+                    ];
+                }
+                else{
+                    $response = [
+                        "Extension" => $extension,
+                        "FileName" => $filename,
+                        "Error" => "Invalid Image Format"
+                    ];
                 }
             }
-            return "image saved";
+        }else{
+            $response = [
+                "Error" => "No Images."
+            ];
         }
+        return response($response, 201);
     }
 
     /**
@@ -85,16 +117,29 @@ class PhotoController extends Controller
     public function destroy($id)
     {
         $photo = Photo::findOrFail($id);
-        $image_path = public_path("photos/".$photo->label);
-        $deleted = false;
+        $image_path = public_path("storage/".$photo->label);
+        // dd($image_path);
         if (File::exists($image_path)) {
             //File::delete($image_path);
             if(unlink($image_path)){
-                $deleted = true;
+                $photo->delete();
+                $response = [
+                    "path" => $image_path,
+                    "Message" => "Image Deleted Successfully."
+                ];
+                return response($response, 201);
+            }else {
+                $response = [
+                    "path" => $image_path,
+                    "Error" => "Error Occured Couldn't Delete Image."
+                ];
+                return response($response, 201);
             }
-            // unlink($image_path);
         }
-        return "image deleted = ".$deleted;
-        // $photo->delete();
+        $response = [
+            "path" => $image_path,
+            "Error" => "Couldn't Find Image To Delete."
+        ];
+        return response($response, 201);
     }
 }

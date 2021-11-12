@@ -3,6 +3,7 @@
 use App\Http\Controllers\PhotoController;
 use App\Http\Controllers\VideoController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -29,15 +30,16 @@ Route::group(['middleware' => ['auth:sanctum']], function (){
     Route::post('/videos',[VideoController::class, 'store']);
     Route::delete('/videos/{id}',[VideoController::class, 'destroy']);
     Route::put('/videos/{id}',[VideoController::class, 'update']);
-    Route::post('/logout',[AuthController::class, 'logout']);
+    Route::post('/videos/{id}',[VideoController::class, 'download']);
+    Route::get('/logout',[AuthController::class, 'logout']);
     Route::resource('users', UserController::class);
 });
 
 //public routes
 Route::get('/photos',[PhotoController::class, 'index']);
 Route::get('/photos/{id}',[PhotoController::class, 'show']);
-Route::get('/videos',[PhotoController::class, 'index']);
-Route::get('/videos/{id}',[PhotoController::class, 'show']);
+Route::get('/videos',[VideoController::class, 'index']);
+Route::get('/videos/{id}',[VideoController::class, 'show']);
 
 //login and registration
 Route::post('/register',[AuthController::class, 'register']);
