@@ -125,7 +125,7 @@ class VideoController extends Controller
         {
             $allowedfileExtension=['mkv','mp4','mp3'];
             $file = $request->file('video');
-            $filename = $file->getClientOriginalName().Carbon\Carbon::now();
+            $filename = $file->getClientOriginalName();
             $extension = $file->getClientOriginalExtension();
             $check=in_array($extension,$allowedfileExtension);
             //dd($check);
