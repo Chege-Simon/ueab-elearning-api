@@ -32,7 +32,7 @@ Route::group(['middleware' => ['auth:sanctum']], function (){
     Route::put('/videos/{id}',[VideoController::class, 'update']);
     Route::post('/videos/{id}',[VideoController::class, 'download']);
     Route::get('/logout',[AuthController::class, 'logout']);
-    Route::resource('users', UserController::class);
+    Route::resource('/users', UserController::class);
 });
 
 //public routes
