@@ -195,11 +195,13 @@ class VideoController extends Controller
                 ];
                 return response($response, 201);
             }
-        }
-        $response = [
-            "path" => $video_path,
-            "Error" => "Couldn't Find Film To Delete."
-        ];
-        return response($response, 201);
+        }else
+            {
+                $video->delete();
+                $response = [
+                    "Message" => "Film Deleted Successfully."
+                ];
+                return response($response, 201);
+            }
     }
 }

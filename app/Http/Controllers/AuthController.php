@@ -42,8 +42,8 @@ class AuthController extends Controller
         //check password 
         if(!$user || !Hash::check($fields['password'], $user->password)){
             return response([
-                'message' => "Bye Dude"
-            ], 401);
+                'error' => "Wrong Credentials."
+            ], 203);
         }
 
         $token = $user->createToken('myapptoken')->plainTextToken;
@@ -59,7 +59,7 @@ class AuthController extends Controller
     {
         auth()->user()->tokens()->delete();
         $response = [
-            'message' => "Logged Out buddy!"
+            'message' => "Logged Out!"
         ];
         return response($response, 201);
     }
