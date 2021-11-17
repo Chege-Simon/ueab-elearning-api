@@ -178,30 +178,43 @@ class VideoController extends Controller
     {
         
         $video = Video::findOrFail($id);
-        $video_path = public_path("storage/".$video->label);
-        if (File::exists($video_path)) {
-            //File::delete($video_path);
-            if(unlink($video_path)){
-                $video->delete();
-                $response = [
-                    "path" => $video_path,
-                    "Message" => "Film Deleted Successfully."
-                ];
-                return response($response, 201);
-            }else {
-                $response = [
-                    "path" => $video_path,
-                    "Error" => "Error Occured Couldn't Delete Film."
-                ];
-                return response($response, 201);
-            }
-        }else
-            {
-                $video->delete();
-                $response = [
-                    "Message" => "Film Deleted Successfully."
-                ];
-                return response($response, 201);
-            }
+        /**
+         * Remove the specified resource from storage.
+         *
+         * This code is for deleting of videos uploaded to the site
+         * Code currently under maintaince
+         */
+
+        // $video_path = public_path("storage/".$video->label);
+        // if (File::exists($video_path)) {
+        //     //File::delete($video_path);
+        //     if(unlink($video_path)){
+        //         $video->delete();
+        //         $response = [
+        //             "path" => $video_path,
+        //             "Message" => "Film Deleted Successfully."
+        //         ];
+        //         return response($response, 201);
+        //     }else {
+        //         $response = [
+        //             "path" => $video_path,
+        //             "Error" => "Error Occured Couldn't Delete Film."
+        //         ];
+        //         return response($response, 201);
+        //     }
+        // }else
+        //     {
+        //         $video->delete();
+        //         $response = [
+        //             "Message" => "Film Deleted Successfully."
+        //         ];
+        //         return response($response, 201);
+        //     }
+            
+        $video->delete();
+        $response = [
+            "Message" => "Film Deleted Successfully."
+        ];
+        return response($response, 201);
     }
 }
