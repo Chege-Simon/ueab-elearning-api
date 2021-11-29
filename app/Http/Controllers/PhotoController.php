@@ -18,7 +18,7 @@ class PhotoController extends Controller
     public function index()
     {
         $response = [
-            "images" => Photo::all(),
+            "images" => Photo::orderBy('created_at', 'DESC')->get(),
         ];
         return response($response, 201);
     }
@@ -35,6 +35,7 @@ class PhotoController extends Controller
             'photos'=>'required',
         ]);
         $response;
+        $decription = $request->description;
         if($request->has('photos'))
         {
             $allowedfileExtension=['jpeg','jpg','png','gif','svg'];
@@ -61,7 +62,8 @@ class PhotoController extends Controller
                 {
                     $filename = $file->store('images', 'public');
                     Photo::create([
-                    'label' => $filename
+                        'label' => $filename,
+                        'description' => $decription,
                     ]);  
                     $response = [
                         "Extension" => $extension,

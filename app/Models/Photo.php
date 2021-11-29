@@ -10,5 +10,6 @@ class Photo extends Model
     use HasFactory;
     protected $fillable = [
         'label',
+        'description',
     ];
 }

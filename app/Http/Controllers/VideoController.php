@@ -16,7 +16,7 @@ class VideoController extends Controller
      */
     public function index()
     {
-        return Video::all();
+        return Video::orderBy('created_at', 'DESC')->get();
     }
 
     /**
