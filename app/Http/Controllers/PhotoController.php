@@ -33,6 +33,7 @@ class PhotoController extends Controller
     {
         $this->validate($request, [
             'photos'=>'required',
+            'description' => 'string'
         ]);
         $response;
         $decription = $request->description;
